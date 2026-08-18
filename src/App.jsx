@@ -1,33 +1,5 @@
-function Greeting({ topic }) {
-  return (
-    <p>
-      게시판을 만들기 전에 {topic}로 화면을 구성하는 방법부터 살펴봅시다.
-    </p>
-  );
-}
-
-function LessonItem({ title, description }) {
-  return (
-    <li>
-      <strong>{title}</strong>
-      <span>{description}</span>
-    </li>
-  );
-}
-
-function LessonList({ lessons }) {
-  return (
-    <ul>
-      {lessons.map((lesson) => (
-        <LessonItem
-          key={lesson.id}
-          title={lesson.title}
-          description={lesson.description}
-        />
-      ))}
-    </ul>
-  );
-}
+import Greeting from "./components/Greeting.jsx";
+import LessonList from "./components/LessonList.jsx";
 
 export default function App() {
   const lessonTopic = "React";
@@ -55,7 +27,7 @@ export default function App() {
         <strong className="logo">Green React Board</strong>
       </header>
       <main>
-        <h1>React 기초</h1>
+        <h1>React 기초 1</h1>
         <Greeting topic={lessonTopic} />
         <LessonList lessons={lessons} />
       </main>
