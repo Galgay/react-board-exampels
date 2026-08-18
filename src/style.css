@@ -100,10 +100,31 @@ button:hover {
   transform: scale(1.03);
 }
 
+button:disabled {
+  background-color: #9aa59e;
+  cursor: default;
+}
+
+button:disabled:hover {
+  transform: none;
+}
+
 .empty-message {
   padding: 20px;
   color: #667069;
   text-align: center;
+}
+
+.status-message,
+.error-message {
+  padding: 15px;
+  background-color: white;
+  border: 1px solid #dce5df;
+}
+
+.error-message {
+  color: #a12828;
+  border-color: #d8aaaa;
 }
 
 @media (max-width: 600px) {

@@ -1,20 +1,22 @@
-# 리액트를 이용한 동적 게시판
+# 외부 API 연동
 
-State와 Router를 연결해 실제로 동작하는 게시판을 만듭니다.
+Router의 URL 구조를 유지하면서 localStorage를 외부 API 요청으로 교체합니다.
 
 ## 학습 내용
 
-- 게시글 배열을 `useState`로 관리하기
-- 폼의 입력값으로 새 게시글 만들기
-- `filter`로 선택한 게시글 삭제하기
-- `useNavigate`로 등록·삭제 후 페이지 이동하기
-- `useParams`의 게시글 번호로 State에서 게시글 찾기
-- `useEffect`로 게시글을 로컬 저장소에 저장하기
+- `fetch`로 GET, POST, DELETE 요청 보내기
+- `async/await`와 `try/catch`로 비동기 코드 처리하기
+- 요청 중, 완료, 오류 상태를 State로 표현하기
+- 요청 중에는 등록 버튼을 비활성화하기
+- API 요청 코드를 `api.js` 한 파일로 정리하기
 
-## URL 흐름
+## URL과 API 요청
 
-1. `/posts/new`에서 글을 등록합니다.
-2. 생성된 글의 `/posts/:postId` 상세 화면으로 이동합니다.
-3. 글을 삭제하면 `/posts` 목록으로 돌아갑니다.
+- `/posts`: `GET /api/posts`
+- `/posts/new`: `POST /api/posts`
+- `/posts/:postId`에서 삭제: `DELETE /api/posts/:postId`
 
-다음 단계에서는 localStorage 대신 외부 API 서버의 데이터를 사용합니다.
+화면 URL은 이전 단계와 같습니다. 데이터가 저장되는 위치와 비동기 처리만
+달라지므로 localStorage 단계와 코드를 비교해 보기 좋습니다.
+
+API 서버가 꺼져 있으면 로컬 저장소를 사용합니다.

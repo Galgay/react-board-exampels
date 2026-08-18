@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function WritePage({ onCreate }) {
+export default function WritePage({ onCreate, isSubmitting }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const newPost = onCreate({ title, content });
-    navigate(`/posts/${newPost.id}`);
+    const newPost = await onCreate({ title, content });
+
+    if (newPost) {
+      navigate(`/posts/${newPost.id}`);
+    }
   }
 
   return (
@@ -36,7 +39,9 @@ export default function WritePage({ onCreate }) {
             required
           />
 
-          <button type="submit">등록</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "등록 중..." : "등록"}
+          </button>
         </form>
       </section>
     </>

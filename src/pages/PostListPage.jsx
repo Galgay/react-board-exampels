@@ -4,7 +4,7 @@ export default function PostListPage({ posts }) {
   return (
     <>
       <h1>게시판</h1>
-      <p className="intro">작성한 글은 브라우저의 로컬 저장소에 보관됩니다.</p>
+      <p className="intro">React 화면과 외부 API 서버를 연결합니다.</p>
       <section className="board-section">
         <h2>게시글 목록</h2>
         <PostList posts={posts} />

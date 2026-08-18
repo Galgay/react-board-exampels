@@ -9,9 +9,12 @@ export default function PostDetailPage({ posts, onDelete }) {
     return <p>게시글을 찾을 수 없습니다.</p>;
   }
 
-  function handleDelete() {
-    onDelete(post.id);
-    navigate("/posts");
+  async function handleDelete() {
+    const isDeleted = await onDelete(post.id);
+
+    if (isDeleted) {
+      navigate("/posts");
+    }
   }
 
   return (
