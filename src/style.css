@@ -47,6 +47,10 @@ main {
   border: 1px solid #dce5df;
 }
 
+.practice {
+  border-left: 5px solid #24734d;
+}
+
 ul {
   padding: 0;
   list-style: none;

@@ -1,18 +1,39 @@
+import { useState } from "react";
+
 export default function WritePage() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    alert(title + " 글을 작성했습니다. 다음 단계에서 목록에 추가합니다.");
+  }
+
   return (
     <>
       <h1>게시판</h1>
       <p className="intro">새로운 게시글을 작성합니다.</p>
       <section className="board-section">
         <h2>게시글 작성</h2>
-        <form>
+        <form onSubmit={handleSubmit}>
           <label htmlFor="title">제목</label>
-          <input id="title" />
+          <input
+            id="title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            required
+          />
 
           <label htmlFor="content">내용</label>
-          <textarea id="content" rows="8" />
+          <textarea
+            id="content"
+            rows="8"
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            required
+          />
 
-          <button type="button">등록</button>
+          <button type="submit">등록</button>
         </form>
       </section>
     </>
