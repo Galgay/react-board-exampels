@@ -1,6 +1,37 @@
+function Greeting({ topic }) {
+  return (
+    <p>
+      게시판을 만들기 전에 {topic}로 화면을 구성하는 방법부터 살펴봅시다.
+    </p>
+  );
+}
+
+function LessonItem({ title, description }) {
+  return (
+    <li>
+      <strong>{title}</strong>
+      <span>{description}</span>
+    </li>
+  );
+}
+
+function LessonList({ lessons }) {
+  return (
+    <ul>
+      {lessons.map((lesson) => (
+        <LessonItem
+          key={lesson.id}
+          title={lesson.title}
+          description={lesson.description}
+        />
+      ))}
+    </ul>
+  );
+}
+
 export default function App() {
   const lessonTopic = "React";
-  const concepts = [
+  const lessons = [
     {
       id: 1,
       title: "JSX로 화면 작성하기",
@@ -25,18 +56,8 @@ export default function App() {
       </header>
       <main>
         <h1>React 기초</h1>
-        <p>
-          게시판을 만들기 전에 {lessonTopic}로 화면을 구성하는 방법부터
-          살펴봅시다.
-        </p>
-        <ul>
-          {concepts.map((concept) => (
-            <li key={concept.id}>
-              <strong>{concept.title}</strong>
-              <span>{concept.description}</span>
-            </li>
-          ))}
-        </ul>
+        <Greeting topic={lessonTopic} />
+        <LessonList lessons={lessons} />
       </main>
     </>
   );
