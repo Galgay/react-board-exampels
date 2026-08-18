@@ -1,15 +1,14 @@
-import BasicsPractice from "../components/BasicsPractice.jsx";
 import PostList from "../components/PostList.jsx";
 
 export default function PostListPage({ posts }) {
   return (
     <>
       <h1>게시판</h1>
-      <p className="intro">게시판에 동작을 추가하기 전에 React 기초를 연습합니다.</p>
-      <BasicsPractice />
+      <p className="intro">작성한 글은 브라우저의 로컬 저장소에 보관됩니다.</p>
       <section className="board-section">
         <h2>게시글 목록</h2>
         <PostList posts={posts} />
+        {posts.length === 0 && <p className="empty-message">게시글이 없습니다.</p>}
       </section>
     </>
   );

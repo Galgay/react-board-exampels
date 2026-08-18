@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function WritePage() {
+export default function WritePage({ onCreate }) {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
-    alert(title + " 글을 작성했습니다. 다음 단계에서 목록에 추가합니다.");
+    const newPost = onCreate({ title, content });
+    navigate(`/posts/${newPost.id}`);
   }
 
   return (

@@ -1,11 +1,17 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function PostDetailPage({ posts }) {
+export default function PostDetailPage({ posts, onDelete }) {
   const { postId } = useParams();
+  const navigate = useNavigate();
   const post = posts.find((item) => item.id === Number(postId));
 
   if (!post) {
     return <p>게시글을 찾을 수 없습니다.</p>;
+  }
+
+  function handleDelete() {
+    onDelete(post.id);
+    navigate("/posts");
   }
 
   return (
@@ -18,6 +24,9 @@ export default function PostDetailPage({ posts }) {
           <h3>{post.title}</h3>
           <p className="post-info">{post.author}</p>
           <p>{post.content}</p>
+          <button type="button" onClick={handleDelete}>
+            삭제
+          </button>
         </article>
       </section>
     </>

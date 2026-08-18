@@ -1,19 +1,20 @@
-# React 기초 2
+# 리액트를 이용한 동적 게시판
 
-Router로 나눈 게시판 화면에 State와 이벤트를 연결합니다.
+State와 Router를 연결해 실제로 동작하는 게시판을 만듭니다.
 
 ## 학습 내용
 
-- `useState`로 컴포넌트가 기억할 값 만들기
-- `onClick`, `onChange`, `onSubmit` 이벤트 처리하기
-- 입력값과 State를 연결한 제어 컴포넌트 이해하기
-- `event.preventDefault()`로 폼의 새로고침 막기
-- `useEffect`로 State가 바뀐 뒤 문서 제목 변경하기
+- 게시글 배열을 `useState`로 관리하기
+- 폼의 입력값으로 새 게시글 만들기
+- `filter`로 선택한 게시글 삭제하기
+- `useNavigate`로 등록·삭제 후 페이지 이동하기
+- `useParams`의 게시글 번호로 State에서 게시글 찾기
+- `useEffect`로 게시글을 로컬 저장소에 저장하기
 
-## 코드에서 확인할 곳
+## URL 흐름
 
-- `/posts`의 `BasicsPractice`: 숫자를 누르며 State 변경 확인
-- `/posts/new`의 `WritePage`: 입력값을 State에 저장
+1. `/posts/new`에서 글을 등록합니다.
+2. 생성된 글의 `/posts/:postId` 상세 화면으로 이동합니다.
+3. 글을 삭제하면 `/posts` 목록으로 돌아갑니다.
 
-현재 등록 버튼은 입력값을 알림으로만 보여 줍니다. 다음 단계에서는 게시글 배열을
-State로 바꾸고 새 글을 목록에 추가합니다.
+다음 단계에서는 localStorage 대신 외부 API 서버의 데이터를 사용합니다.
