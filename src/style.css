@@ -11,22 +11,37 @@ header {
   background-color: #174f35;
 }
 
-.logo {
-  font-size: 20px;
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-nav {
-  float: right;
-}
-
-nav a {
+header a {
   margin-left: 20px;
   color: white;
+  text-decoration: none;
+}
+
+.logo {
+  margin-left: 0;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 main {
-  max-width: 880px;
+  max-width: 900px;
   margin: 30px auto;
+}
+
+.intro {
+  margin-bottom: 30px;
+}
+
+.board-section {
+  margin-bottom: 30px;
   padding: 20px;
   background-color: white;
   border: 1px solid #dce5df;
@@ -38,16 +53,73 @@ ul {
 }
 
 li {
+  display: flex;
+  justify-content: space-between;
   padding-top: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #e4e9e5;
 }
 
-li strong,
-li span {
-  display: block;
+li a {
+  color: #174f35;
+  font-weight: bold;
 }
 
-li span {
-  margin-top: 5px;
+article {
+  padding: 15px;
+  background-color: #f8faf8;
+}
+
+.post-info {
+  color: #667069;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #bdc9c1;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px 16px;
+  color: white;
+  background-color: #24754f;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #174f35;
+  transform: scale(1.03);
+}
+
+@media (max-width: 600px) {
+  .header-inner {
+    display: block;
+  }
+
+  nav {
+    margin-top: 15px;
+  }
+
+  header a {
+    margin-left: 0;
+    margin-right: 10px;
+  }
+
+  main {
+    margin: 15px;
+  }
 }
