@@ -1,19 +1,19 @@
-# 기초 실습 컴포넌트 파일 분리
+# React Router 기초
 
-한 파일에 작성했던 작은 컴포넌트를 역할에 따라 파일로 옮겨 봅니다.
+게시판을 만들기 전에 간단한 학습 화면으로 URL과 페이지의 관계를 익힙니다.
 
-## 분리한 컴포넌트
+## URL과 화면
 
-- `Greeting`: 학습 안내 문구 표시
-- `LessonList`: 학습 배열을 `map`으로 순회
-- `LessonItem`: 학습 내용 하나를 반복해서 표시
+- `/concepts`: React 개념 목록
+- `/practice`: 컴포넌트 분리 실습 안내
 
-## Props 흐름
+## 학습 내용
 
-1. `App`이 학습 배열을 `LessonList`에 전달합니다.
-2. `LessonList`가 각 학습 내용을 `LessonItem`에 전달합니다.
-3. `LessonItem`은 받은 제목과 설명을 화면에 표시합니다.
+- `BrowserRouter`로 Router 사용 준비하기
+- `Routes`와 `Route`로 URL에 맞는 페이지 보여 주기
+- `Link`로 새로고침 없이 이동하기
+- `Navigate`로 기본 주소 이동하기
+- URL을 담당하는 컴포넌트를 `pages` 폴더에 두기
 
-같은 모양이 반복되는 `LessonItem`은 분리할 이유가 분명합니다. 반면 한두 줄짜리
-HTML 요소까지 모두 컴포넌트로 만들지는 않습니다. 이 기준을 이후 게시판의
-`PostList`와 `PostItem`에도 적용합니다.
+다음 단계에서는 같은 Router 구조를 `/posts`, `/posts/:postId`, `/posts/new`
+게시판 URL에 적용합니다.
