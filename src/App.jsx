@@ -9,27 +9,21 @@ import Login from "./components/Login.jsx";
 import "./style.css";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [posts, setPosts] = useState([
-    { id: 1, title: "첫 번째 게시글", authorNickname: "학생", createdDatetime: "2026-10-04", content: "React 게시판의 첫 글입니다." },
-    { id: 2, title: "두 번째 게시글", authorNickname: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
-  ]);
+  const [token, setToken] = useState(() => localStorage.getItem("boardAccessToken"));
 
-  function savePost(post) {
-    setPosts((currentPosts) => [
-      { id: Date.now(), ...post, authorNickname: "학생", createdDatetime: "2026-10-04" },
-      ...currentPosts,
-    ]);
+  function logoutLocally() {
+    localStorage.removeItem("boardAccessToken");
+    setToken(null);
   }
 
   return <>
-    <BoardHeader isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
+    <BoardHeader isLoggedIn={Boolean(token)} onLogout={logoutLocally} />
     <Routes>
-      <Route path="/" element={<PostList />} />
-      <Route path="/posts" element={<PostList />} />
-      <Route path="/posts/new" element={<PostForm onSave={savePost} />} />
-      <Route path="/posts/:postId" element={<PostDetail />} />
-      <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+      <Route path="/" element={token ? <PostList token={token} /> : <Login onLogin={setToken} />} />
+      <Route path="/posts" element={token ? <PostList token={token} /> : <Login onLogin={setToken} />} />
+      <Route path="/posts/new" element={token ? <PostForm /> : <Login onLogin={setToken} />} />
+      <Route path="/posts/:postId" element={token ? <PostDetail token={token} /> : <Login onLogin={setToken} />} />
+      <Route path="/login" element={<Login onLogin={setToken} />} />
     </Routes>
     <BoardFooter />
   </>;

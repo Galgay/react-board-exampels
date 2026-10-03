@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-export default function PostDetail() {
+export default function PostDetail({ token }) {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -20,7 +20,7 @@ export default function PostDetail() {
 
     async function loadDetail() {
       try {
-        const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}`);
+        const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
         setPost(result.data);
@@ -32,7 +32,7 @@ export default function PostDetail() {
 
       setCommentMessage("댓글을 불러오는 중…");
       try {
-        const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`);
+        const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.message || "댓글을 불러올 수 없습니다.");
         setComments(result.data);
@@ -43,7 +43,7 @@ export default function PostDetail() {
     }
 
     loadDetail();
-  }, [postId]);
+  }, [postId, token]);
 
   return <main>
     <article>

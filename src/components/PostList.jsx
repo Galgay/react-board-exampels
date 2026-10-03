@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PostItem from "./PostItem.jsx";
 
-export default function PostList() {
+export default function PostList({ token }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -12,7 +12,7 @@ export default function PostList() {
 
   useEffect(() => {
     // 페이지 번호가 바뀔 때 목록을 다시 조회
-    fetch(`http://127.0.0.1:8080/api/board?page=${page - 1}&size=10`)
+    fetch(`http://127.0.0.1:8080/api/board?page=${page - 1}&size=10`, { headers: { Authorization: `Bearer ${token}` } })
       .then((response) => response.json())
       .then((result) => {
         if (!result.success) throw new Error(result.message);
@@ -21,7 +21,7 @@ export default function PostList() {
         setMessage(`전체 ${result.data.totalElements}개`);
       })
       .catch(() => setMessage("게시글을 불러올 수 없습니다."));
-  }, [page]);
+  }, [page, token]);
 
   return <main>
     <h1>게시판</h1>

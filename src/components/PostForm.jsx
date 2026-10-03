@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function PostForm({ onSave }) {
+export default function PostForm() {
+  const [message, setMessage] = useState("");
   return <main>
     <h1>글쓰기</h1>
-    <PostFormFields onSave={onSave} />
+    <PostFormFields onSave={() => setMessage("게시글 등록 API는 다음 실습에서 연결합니다.")} />
+    <p role="status">{message}</p>
   </main>;
 }
 
