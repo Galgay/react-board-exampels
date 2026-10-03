@@ -8,7 +8,7 @@ export default function PostForm({ onSave }) {
   const titleRef = useRef(null);
   const contentRef = useRef(null);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
@@ -18,10 +18,14 @@ export default function PostForm({ onSave }) {
       else contentRef.current.focus();
       return;
     }
-    onSave({ title: trimmedTitle, content: trimmedContent });
-    setTitle("");
-    setContent("");
-    setMessage("");
+    try {
+      await onSave({ title: trimmedTitle, content: trimmedContent });
+      setTitle("");
+      setContent("");
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
 
   return (
