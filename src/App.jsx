@@ -50,10 +50,10 @@ function PostDetailPage() {
   </main>;
 }
 
-function LoginPage() {
+function LoginPage({ onLogin }) {
   return <main>
     <h1>로그인</h1>
-    <form id="login-form">
+    <form id="login-form" onSubmit={(event) => { event.preventDefault(); onLogin(); }}>
       <label htmlFor="username">아이디</label>
       <input id="username" name="username" autoComplete="username" required placeholder="아이디를 입력하세요" />
       <label htmlFor="password">비밀번호</label>
@@ -65,6 +65,7 @@ function LoginPage() {
 }
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([
     { id: 1, title: "첫 번째 게시글", author: "학생", createdDatetime: "2026-10-04", content: "React 게시판의 첫 글입니다." },
     { id: 2, title: "두 번째 게시글", author: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
@@ -85,13 +86,13 @@ export default function App() {
   }
 
   return <>
-    <BoardHeader />
+    <BoardHeader isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
     <Routes>
       <Route path="/" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
       <Route path="/posts" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
       <Route path="/posts/new" element={<PostWritePage onSave={savePost} />} />
       <Route path="/posts/:postId" element={<PostDetailPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
     </Routes>
     <BoardFooter />
   </>;
