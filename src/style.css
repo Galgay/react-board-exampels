@@ -2,6 +2,21 @@
   box-sizing: border-box;
 }
 
+.text-button {
+  padding: 0;
+  border: 0;
+  color: #456f53;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.text-button:hover:not(:disabled) {
+  color: #2e5039;
+  background: transparent;
+}
+
 body {
   margin: 0;
   padding-top: 5rem;

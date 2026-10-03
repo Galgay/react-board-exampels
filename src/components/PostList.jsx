@@ -1,9 +1,11 @@
 import PostItem from "./PostItem.jsx";
 
-export default function PostList({ posts }) {
+export default function PostList({ posts, keyword, onKeywordChange, onSelect }) {
   return (
     <section>
       <h2>게시글 목록</h2>
+      <label htmlFor="keyword">제목 검색</label>
+      <input id="keyword" value={keyword} onChange={(event) => onKeywordChange(event.target.value)} />
       <div className="table-scroll">
         <table>
           <thead>
@@ -16,10 +18,11 @@ export default function PostList({ posts }) {
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => <PostItem key={post.id} post={post} />)}
+            {posts.map((post) => <PostItem key={post.id} post={post} onSelect={onSelect} />)}
           </tbody>
         </table>
       </div>
+      {posts.length === 0 && <p>검색 결과가 없습니다.</p>}
     </section>
   );
 }

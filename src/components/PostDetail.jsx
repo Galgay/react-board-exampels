@@ -1,4 +1,5 @@
 export default function PostDetail({ post }) {
+  if (!post) return <p>게시글을 선택해 주세요.</p>;
   return (
     <article>
       <h2>{post.title}</h2>
