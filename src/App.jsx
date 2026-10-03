@@ -7,6 +7,7 @@ import PostList from "./components/PostList.jsx";
 import PostForm from "./components/PostForm.jsx";
 import { AuthContext } from "./auth.jsx";
 import Spinner from "./components/Spinner.jsx";
+import { authApi, commentApi, postApi } from "./api.js";
 
 function PostListPage() {
   const { token } = useContext(AuthContext);
@@ -25,17 +26,11 @@ function PostListPage() {
     setLoading(true);
     setError(false);
     // 페이지 번호가 바뀔 때 목록을 다시 조회
-    fetch(`/api/board?page=${page - 1}&size=10`, { signal: controller.signal, headers: { Authorization: `Bearer ${token}` } })
-      .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
-        return result;
-      })
-      .then((result) => {
-        if (!result.success) throw new Error(result.message);
-        setPosts(result.data.content);
-        setTotalPages(result.data.totalPages);
-        setMessage(`전체 ${result.data.totalElements}개`);
+    postApi.list(page - 1, token, controller.signal)
+      .then((data) => {
+        setPosts(data.content);
+        setTotalPages(data.totalPages);
+        setMessage(`전체 ${data.totalElements}개`);
       })
       .catch((requestError) => {
         if (controller.signal.aborted) return;
@@ -65,13 +60,7 @@ function PostWritePage() {
   const navigate = useNavigate();
 
   async function createPost(post) {
-    const response = await fetch("/api/board", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify(post),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.message || "게시글을 등록할 수 없습니다.");
+    await postApi.create(post, token);
     navigate("/posts");
   }
 
@@ -101,10 +90,8 @@ function PostDetailPage() {
     setCommentError(false);
     setCommentMessage("댓글을 불러오는 중…");
     try {
-      const response = await fetch(`/api/board/${postId}/comments`, { signal, headers: { Authorization: `Bearer ${token}` } });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "댓글을 불러올 수 없습니다.");
-      setComments(result.data);
+      const data = await commentApi.list(postId, token, signal);
+      setComments(data);
       setCommentMessage("");
     } catch (error) {
       if (!signal?.aborted) {
@@ -132,10 +119,8 @@ function PostDetailPage() {
 
     async function loadDetail() {
       try {
-        const response = await fetch(`/api/board/${postId}`, { signal: controller.signal, headers: { Authorization: `Bearer ${token}` } });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
-        setPost(result.data);
+        const data = await postApi.detail(postId, token, controller.signal);
+        setPost(data);
         setPostMessage("");
         setPostLoading(false);
       } catch (error) {
@@ -163,13 +148,7 @@ function PostDetailPage() {
     }
     try {
       setCommentSaving(true);
-      const response = await fetch(`/api/board/${postId}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ content }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "댓글을 등록할 수 없습니다.");
+      await commentApi.create(postId, content, token);
       setCommentContent("");
       // 등록한 글의 댓글만 다시 조회
       await loadComments();
@@ -218,15 +197,9 @@ function LoginPage() {
     if (loggingIn) return;
     try {
       setLoggingIn(true);
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "로그인에 실패했습니다.");
-      if (!result.data?.accessToken) throw new Error("로그인 토큰이 없습니다.");
-      login(result.data.accessToken);
+      const tokens = await authApi.login(username.trim(), password);
+      if (!tokens?.accessToken) throw new Error("로그인 토큰이 없습니다.");
+      login(tokens.accessToken);
       navigate("/posts");
     } catch (error) {
       setMessage(error.message);
