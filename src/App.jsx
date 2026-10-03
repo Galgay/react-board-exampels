@@ -1,43 +1,40 @@
-export default function App() {
-  const lessonTopic = "React";
-  const concepts = [
-    {
-      id: 1,
-      title: "JSX로 화면 작성하기",
-      description: "HTML과 비슷한 문법으로 화면의 모습을 작성합니다.",
-    },
-    {
-      id: 2,
-      title: "화면을 컴포넌트로 나누기",
-      description: "한 화면을 역할에 따라 작은 함수로 나누어 관리합니다.",
-    },
-    {
-      id: 3,
-      title: "Props로 값 전달하기",
-      description: "컴포넌트에 필요한 이름이나 목록을 전달합니다.",
-    },
-  ];
+const examplePost = {
+  id: 1,
+  title: "React 게시판 실습",
+  author: "강사",
+  content: "바닐라 게시판을 React로 옮기는 첫 화면입니다.",
+};
 
+export default function App() {
   return (
     <>
       <header>
-        <strong className="logo">Green React Board</strong>
+        <div className="header-inner">
+          <strong className="logo">그린보드</strong>
+          <nav aria-label="주요 메뉴">게시글 목록</nav>
+        </div>
       </header>
       <main>
-        <h1>React 기초</h1>
-        <p>
-          게시판을 만들기 전에 {lessonTopic}로 화면을 구성하는 방법부터
-          살펴봅시다.
-        </p>
-        <ul>
-          {concepts.map((concept) => (
-            <li key={concept.id}>
-              <strong>{concept.title}</strong>
-              <span>{concept.description}</span>
-            </li>
-          ))}
-        </ul>
+        <h1>게시판</h1>
+        <section>
+          <h2>게시글 목록</h2>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr><th scope="col">번호</th><th scope="col">제목</th><th scope="col">작성자</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>{examplePost.id}</td><td>{examplePost.title}</td><td>{examplePost.author}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <article>
+          <h2>{examplePost.title}</h2>
+          <p>{examplePost.content}</p>
+        </article>
       </main>
+      <footer>그린보드</footer>
     </>
   );
 }
