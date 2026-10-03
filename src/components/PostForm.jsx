@@ -5,11 +5,13 @@ export default function PostForm({ onSave }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
   const titleRef = useRef(null);
   const contentRef = useRef(null);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (saving) return;
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
     if (trimmedTitle.length < 10 || trimmedTitle.length > 50 || trimmedContent.length < 10) {
@@ -19,12 +21,15 @@ export default function PostForm({ onSave }) {
       return;
     }
     try {
+      setSaving(true);
       await onSave({ title: trimmedTitle, content: trimmedContent });
       setTitle("");
       setContent("");
       setMessage("");
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -35,7 +40,7 @@ export default function PostForm({ onSave }) {
       <label htmlFor="content">본문 (10자 이상)</label>
       <textarea ref={contentRef} id="content" name="content" required minLength="10" rows="10" value={content} onChange={(event) => setContent(event.target.value)} />
       <p id="form-message" role="status">{message}</p>
-      <button type="submit">게시글 등록</button>
+      <button type="submit" disabled={saving}>게시글 등록</button>
       <Link to="/posts">목록으로</Link>
     </form>
   );

@@ -38,3 +38,4 @@ button[type="submit"] { align-self: flex-start; }
   nav { flex-wrap: wrap; gap: 8px; }
   button[type="submit"] { width: 100%; }
 }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #cbd8cc; border-top-color: #23663d; border-radius: 50%; vertical-align: middle; }
