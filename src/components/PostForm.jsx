@@ -1,12 +1,25 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../useAuthContext.jsx";
 
 export default function PostForm() {
-  const [message, setMessage] = useState("");
+  const { token } = useAuthContext();
+  const navigate = useNavigate();
+
+  async function createPost(post) {
+    const response = await fetch("http://127.0.0.1:8080/api/board", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(post),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "게시글을 등록할 수 없습니다.");
+    navigate("/posts");
+  }
+
   return <main>
     <h1>글쓰기</h1>
-    <PostFormFields onSave={() => setMessage("게시글 등록 API는 다음 실습에서 연결합니다.")} />
-    <p role="status">{message}</p>
+    <PostFormFields onSave={createPost} />
   </main>;
 }
 
@@ -17,7 +30,7 @@ function PostFormFields({ onSave }) {
   const titleRef = useRef(null);
   const contentRef = useRef(null);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
@@ -27,10 +40,14 @@ function PostFormFields({ onSave }) {
       else contentRef.current.focus();
       return;
     }
-    onSave({ title: trimmedTitle, content: trimmedContent });
-    setTitle("");
-    setContent("");
-    setMessage("");
+    try {
+      await onSave({ title: trimmedTitle, content: trimmedContent });
+      setTitle("");
+      setContent("");
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
 
   return (
