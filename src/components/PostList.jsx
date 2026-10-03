@@ -1,6 +1,6 @@
 import PostItem from "./PostItem.jsx";
 
-export default function PostList({ posts, keyword, onKeywordChange, onSelect }) {
+export default function PostList({ posts, keyword, onKeywordChange }) {
   return (
     <section>
       <h2>게시글 목록</h2>
@@ -18,7 +18,7 @@ export default function PostList({ posts, keyword, onKeywordChange, onSelect }) 
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => <PostItem key={post.id} post={post} onSelect={onSelect} />)}
+            {posts.map((post) => <PostItem key={post.id} post={post} />)}
           </tbody>
         </table>
       </div>

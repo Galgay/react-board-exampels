@@ -1,15 +1,14 @@
 import { useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import BoardHeader from "./components/BoardHeader.jsx";
-import PostDetail from "./components/PostDetail.jsx";
-import PostForm from "./components/PostForm.jsx";
-import PostList from "./components/PostList.jsx";
+import PostDetailPage from "./pages/PostDetailPage.jsx";
+import PostListPage from "./pages/PostListPage.jsx";
+import WritePage from "./pages/WritePage.jsx";
 import { samplePosts } from "./samplePosts.js";
 
 export default function App() {
   const [posts, setPosts] = useState(samplePosts);
-  const [selectedId, setSelectedId] = useState(samplePosts[0].id);
   const [keyword, setKeyword] = useState("");
-  const selectedPost = posts.find((post) => post.id === selectedId);
   const visiblePosts = posts.filter((post) => post.title.includes(keyword.trim()));
 
   function createPost(values) {
@@ -24,17 +23,20 @@ export default function App() {
       createdDatetime: new Date().toISOString(),
     };
     setPosts((currentPosts) => [newPost, ...currentPosts]);
-    setSelectedId(id);
+    return id;
   }
 
   return (
     <>
       <BoardHeader />
       <main>
-        <h1>게시판</h1>
-        <PostList posts={visiblePosts} keyword={keyword} onKeywordChange={setKeyword} onSelect={setSelectedId} />
-        <PostDetail post={selectedPost} />
-        <PostForm onCreate={createPost} />
+        <Routes>
+          <Route path="/" element={<Navigate to="/posts" replace />} />
+          <Route path="/posts" element={<PostListPage posts={visiblePosts} keyword={keyword} onKeywordChange={setKeyword} />} />
+          <Route path="/posts/new" element={<WritePage onCreate={createPost} />} />
+          <Route path="/posts/:postId" element={<PostDetailPage posts={posts} />} />
+          <Route path="*" element={<Navigate to="/posts" replace />} />
+        </Routes>
       </main>
       <footer>그린보드</footer>
     </>
