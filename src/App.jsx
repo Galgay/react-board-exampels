@@ -1,23 +1,42 @@
+import { useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import BoardHeader from "./components/BoardHeader.jsx";
+import { login, logout } from "./api.js";
+import { clearSession, getStoredUser, saveSession } from "./auth.js";
+import ProtectedLayout from "./components/ProtectedLayout.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
 import PostDetailPage from "./pages/PostDetailPage.jsx";
 import PostListPage from "./pages/PostListPage.jsx";
 import WritePage from "./pages/WritePage.jsx";
 
 export default function App() {
+  const [user, setUser] = useState(getStoredUser);
+
+  async function handleLogin(values) {
+    const tokens = await login({ username: values.username.trim(), password: values.password });
+    setUser(saveSession(tokens, values.username.trim()));
+  }
+
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      // 서버 응답이 없어도 브라우저의 로그인 정보는 정리합니다.
+    } finally {
+      clearSession();
+      setUser(null);
+    }
+  }
+
   return (
-    <>
-      <BoardHeader />
-      <main>
-        <Routes>
+    <Routes>
+      <Route path="/login" element={<LoginPage user={user} onLogin={handleLogin} />} />
+      <Route element={<ProtectedLayout user={user} onLogout={handleLogout} />}>
           <Route path="/" element={<Navigate to="/posts" replace />} />
           <Route path="/posts" element={<PostListPage />} />
           <Route path="/posts/new" element={<WritePage />} />
           <Route path="/posts/:postId" element={<PostDetailPage />} />
-          <Route path="*" element={<Navigate to="/posts" replace />} />
-        </Routes>
-      </main>
-      <footer>그린보드</footer>
-    </>
+      </Route>
+      <Route path="*" element={<Navigate to={user ? "/posts" : "/login"} replace />} />
+    </Routes>
   );
 }
