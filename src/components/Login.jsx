@@ -7,11 +7,14 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (loggingIn) return;
     try {
+      setLoggingIn(true);
       const response = await fetch("http://127.0.0.1:8080/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,6 +27,8 @@ export default function Login() {
       navigate("/posts");
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setLoggingIn(false);
     }
   }
 
@@ -35,7 +40,7 @@ export default function Login() {
       <label htmlFor="password">비밀번호</label>
       <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
       {message && <p id="login-message" role="alert">{message}</p>}
-      <button type="submit">로그인</button>
+      <button type="submit" disabled={loggingIn}>로그인</button>
     </form>
   </main>;
 }
