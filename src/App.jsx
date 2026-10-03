@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { login, logout } from "./api.js";
 import { clearSession, getStoredUser, saveSession } from "./auth.js";
@@ -10,6 +10,15 @@ import WritePage from "./pages/WritePage.jsx";
 
 export default function App() {
   const [user, setUser] = useState(getStoredUser);
+
+  useEffect(() => {
+    function handleSessionExpired() {
+      clearSession();
+      setUser(null);
+    }
+    window.addEventListener("board:session-expired", handleSessionExpired);
+    return () => window.removeEventListener("board:session-expired", handleSessionExpired);
+  }, []);
 
   async function handleLogin(values) {
     const tokens = await login({ username: values.username.trim(), password: values.password });
