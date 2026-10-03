@@ -1,7 +1,9 @@
-export default function PostList() {
+import PostItem from "./PostItem.jsx";
+
+export default function PostList({ posts }) {
   return (
     <ul id="post-list" className="post-list">
-      <li><a href="/">첫 번째 게시글</a><div className="meta">학생 · 2026-10-04</div></li>
+      {posts.map((post) => <PostItem key={post.id} post={post} />)}
     </ul>
   );
 }
