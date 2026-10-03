@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function PostForm({ onSave, onCancel }) {
+export default function PostForm({ onSave }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [message, setMessage] = useState("");
@@ -27,7 +28,7 @@ export default function PostForm({ onSave, onCancel }) {
       <textarea id="content" name="content" required minLength="10" rows="10" value={content} onChange={(event) => setContent(event.target.value)} />
       <p id="form-message" role="status">{message}</p>
       <button type="submit">게시글 등록</button>
-      <a href="/" onClick={(event) => { event.preventDefault(); onCancel(); }}>목록으로</a>
+      <Link to="/posts">목록으로</Link>
     </form>
   );
 }
