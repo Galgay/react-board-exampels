@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../useAuthContext.jsx";
+import { authApi } from "../api.js";
 
 export default function Login() {
   const { login } = useAuthContext();
@@ -15,15 +16,9 @@ export default function Login() {
     if (loggingIn) return;
     try {
       setLoggingIn(true);
-      const response = await fetch("http://127.0.0.1:8080/api/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "로그인에 실패했습니다.");
-      if (!result.data?.accessToken) throw new Error("로그인 토큰이 없습니다.");
-      login(result.data.accessToken);
+      const tokens = await authApi.login(username.trim(), password);
+      if (!tokens?.accessToken) throw new Error("로그인 토큰이 없습니다.");
+      login(tokens.accessToken);
       navigate("/posts");
     } catch (error) {
       setMessage(error.message);

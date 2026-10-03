@@ -1,19 +1,14 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../useAuthContext.jsx";
+import { postApi } from "../api.js";
 
 export default function PostForm() {
   const { token } = useAuthContext();
   const navigate = useNavigate();
 
   async function createPost(post) {
-    const response = await fetch("http://127.0.0.1:8080/api/board", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify(post),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.message || "게시글을 등록할 수 없습니다.");
+    await postApi.create(post, token);
     navigate("/posts");
   }
 

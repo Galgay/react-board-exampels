@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Spinner from "./Spinner.jsx";
 import { useAuthContext } from "../useAuthContext.jsx";
+import { commentApi, postApi } from "../api.js";
 
 export default function PostDetail() {
   const { token } = useAuthContext();
@@ -23,10 +24,8 @@ export default function PostDetail() {
     setCommentError(false);
     setCommentMessage("댓글을 불러오는 중…");
     try {
-      const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`, { headers: { Authorization: `Bearer ${token}` } });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "댓글을 불러올 수 없습니다.");
-      setComments(result.data);
+      const data = await commentApi.list(postId, token);
+      setComments(data);
       setCommentMessage("");
     } catch (error) {
       setCommentMessage(error.message);
@@ -51,10 +50,8 @@ export default function PostDetail() {
 
     async function loadDetail() {
       try {
-        const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}`, { headers: { Authorization: `Bearer ${token}` } });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
-        setPost(result.data);
+        const data = await postApi.detail(postId, token);
+        setPost(data);
         setPostMessage("");
         setPostLoading(false);
       } catch (error) {
@@ -79,13 +76,7 @@ export default function PostDetail() {
     }
     try {
       setCommentSaving(true);
-      const response = await fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ content }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "댓글을 등록할 수 없습니다.");
+      await commentApi.create(postId, content, token);
       setCommentContent("");
       // 등록한 글의 댓글만 다시 조회
       await loadComments();

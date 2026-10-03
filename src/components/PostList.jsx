@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import PostItem from "./PostItem.jsx";
 import Spinner from "./Spinner.jsx";
 import { useAuthContext } from "../useAuthContext.jsx";
+import { postApi } from "../api.js";
 
 export default function PostList() {
   const { token } = useAuthContext();
@@ -20,17 +21,11 @@ export default function PostList() {
     setLoading(true);
     setError(false);
     // 페이지 번호가 바뀔 때 목록을 다시 조회
-    fetch(`http://127.0.0.1:8080/api/board?page=${page - 1}&size=10`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
-        return result;
-      })
-      .then((result) => {
-        if (!result.success) throw new Error(result.message);
-        setPosts(result.data.content);
-        setTotalPages(result.data.totalPages);
-        setMessage(`전체 ${result.data.totalElements}개`);
+    postApi.list(page - 1, token)
+      .then((data) => {
+        setPosts(data.content);
+        setTotalPages(data.totalPages);
+        setMessage(`전체 ${data.totalElements}개`);
       })
       .catch((requestError) => {
         setMessage(requestError.message || "게시글을 불러올 수 없습니다.");

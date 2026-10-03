@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { authApi } from "./api.js";
 
 const AuthContext = createContext(null);
 
@@ -18,15 +19,7 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    const response = await fetch("http://127.0.0.1:8080/api/user/logout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ accessToken: token }),
-    });
-    if (response.status !== 204) {
-      const result = await response.json().catch(() => null);
-      if (!response.ok || !result?.success) throw new Error(result?.message || "로그아웃에 실패했습니다.");
-    }
+    await authApi.logout(token);
     clearAuth();
   }
 
