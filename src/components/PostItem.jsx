@@ -1,7 +1,9 @@
-export default function PostItem({ post, onSelect }) {
+import { Link } from "react-router-dom";
+
+export default function PostItem({ post }) {
   return (
     <li>
-      <a href="/" onClick={(event) => { event.preventDefault(); onSelect(post); }}>{post.title}</a>
+      <Link to={`/posts/${post.id}`}>{post.title}</Link>
       <div className="meta">{post.author} · {post.createdDatetime}</div>
     </li>
   );
