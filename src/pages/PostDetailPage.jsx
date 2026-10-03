@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { deleteBoard, getBoard } from "../api.js";
 import PostDetail from "../components/PostDetail.jsx";
 
-export default function PostDetailPage() {
+export default function PostDetailPage({ ownedBoardIds, onRefreshOwned }) {
   const { postId } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
@@ -33,6 +33,7 @@ export default function PostDetailPage() {
     setError("");
     try {
       await deleteBoard(postId);
+      onRefreshOwned();
       navigate("/posts", { replace: true });
     } catch (deleteError) {
       setError(deleteError.message);
@@ -44,7 +45,7 @@ export default function PostDetailPage() {
   return <>
     {message && <p role="status">{message}</p>}
     {error && <p role="alert">{error}</p>}
-    {post && <><PostDetail post={post} /><div className="actions"><Link to={`/posts/${postId}/edit`}>수정</Link><button type="button" disabled={isDeleting} onClick={handleDelete}>{isDeleting ? "삭제 중..." : "삭제"}</button></div></>}
+    {post && <><PostDetail post={post} />{ownedBoardIds.includes(String(post.id)) && <div className="actions"><Link to={`/posts/${postId}/edit`}>수정</Link><button type="button" disabled={isDeleting} onClick={handleDelete}>{isDeleting ? "삭제 중..." : "삭제"}</button></div>}</>}
     <Link to="/posts">목록으로</Link>
   </>;
 }

@@ -1,6 +1,6 @@
 import PostItem from "./PostItem.jsx";
 
-export default function PostList({ posts, keyword, onKeywordChange }) {
+export default function PostList({ posts, keyword, onKeywordChange, ownedBoardIds, onDelete }) {
   return (
     <section>
       <h2>게시글 목록</h2>
@@ -15,10 +15,11 @@ export default function PostList({ posts, keyword, onKeywordChange }) {
               <th scope="col">작성자</th>
               <th scope="col">조회</th>
               <th scope="col">좋아요</th>
+              <th scope="col">관리</th>
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => <PostItem key={post.id} post={post} />)}
+            {posts.map((post) => <PostItem key={post.id} post={post} canManage={ownedBoardIds.includes(String(post.id))} onDelete={onDelete} />)}
           </tbody>
         </table>
       </div>

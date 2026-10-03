@@ -112,6 +112,10 @@ export function getBoard(id) {
   return request("/board/" + encodeURIComponent(id), {}, false);
 }
 
+export function getMyBoards() {
+  return request("/board/my-posts");
+}
+
 export function createBoard(values) {
   return request("/board", { method: "POST", body: JSON.stringify(values) });
 }
