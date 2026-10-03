@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useAuthContext } from "../useAuthContext.jsx";
 
-export default function PostDetail({ token }) {
+export default function PostDetail() {
+  const { token } = useAuthContext();
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);

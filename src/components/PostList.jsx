@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PostItem from "./PostItem.jsx";
+import { useAuthContext } from "../useAuthContext.jsx";
 
-export default function PostList({ token }) {
+export default function PostList() {
+  const { token } = useAuthContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
