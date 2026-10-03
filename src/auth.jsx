@@ -17,7 +17,12 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    await authApi.logout(token);
+    try {
+      await authApi.logout(token);
+    } catch (error) {
+      if (error.status === 401) clearAuth();
+      throw error;
+    }
     clearAuth();
   }
 
