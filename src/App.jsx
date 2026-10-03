@@ -15,13 +15,6 @@ export default function App() {
     { id: 2, title: "두 번째 게시글", authorNickname: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
   ]);
 
-  function addPracticePost() {
-    setPosts((currentPosts) => [
-      { id: Date.now(), title: `임시 게시글 ${currentPosts.length + 1}`, authorNickname: "학생", createdDatetime: "2026-10-04", content: "State 변경을 확인합니다." },
-      ...currentPosts,
-    ]);
-  }
-
   function savePost(post) {
     setPosts((currentPosts) => [
       { id: Date.now(), ...post, authorNickname: "학생", createdDatetime: "2026-10-04" },
@@ -32,8 +25,8 @@ export default function App() {
   return <>
     <BoardHeader isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
     <Routes>
-      <Route path="/" element={<PostList posts={posts} onAddPracticePost={addPracticePost} />} />
-      <Route path="/posts" element={<PostList posts={posts} onAddPracticePost={addPracticePost} />} />
+      <Route path="/" element={<PostList />} />
+      <Route path="/posts" element={<PostList />} />
       <Route path="/posts/new" element={<PostForm onSave={savePost} />} />
       <Route path="/posts/:postId" element={<PostDetail posts={posts} />} />
       <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
