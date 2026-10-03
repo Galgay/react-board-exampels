@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Route, Routes, useParams, useSearchParams } from "react-router-dom";
 import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
@@ -6,22 +6,35 @@ import BoardFooter from "./components/BoardFooter.jsx";
 import PostList from "./components/PostList.jsx";
 import PostForm from "./components/PostForm.jsx";
 
-function PostListPage({ posts, onAddPracticePost }) {
+function PostListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const totalPages = Math.max(1, posts.length);
+  const [posts, setPosts] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [message, setMessage] = useState("게시글 목록");
   const requestedPage = Number(searchParams.get("page"));
-  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0
-    ? Math.min(requestedPage, totalPages) : 1;
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+  useEffect(() => {
+    // 페이지 번호가 바뀔 때 목록을 다시 조회
+    fetch(`/api/board?page=${page - 1}&size=10`)
+      .then((response) => response.json())
+      .then((result) => {
+        if (!result.success) throw new Error(result.message);
+        setPosts(result.data.content);
+        setTotalPages(result.data.totalPages);
+        setMessage(`전체 ${result.data.totalElements}개`);
+      })
+      .catch(() => setMessage("게시글을 불러올 수 없습니다."));
+  }, [page]);
 
   return <main>
     <h1>게시판</h1>
-    <p id="list-message" role="status">게시글 목록</p>
+    <p id="list-message" role="status">{message}</p>
     <button id="retry-list" type="button" hidden>목록 다시 시도</button>
-    <PostList posts={posts.slice(page - 1, page)} />
-    <button type="button" onClick={onAddPracticePost}>임시 게시글 추가</button>
+    <PostList posts={posts} />
     <div className="pagination" aria-label="페이지 이동">
       <button id="previous-page" type="button" disabled={page === 1} onClick={() => setSearchParams({ page: String(page - 1) })}>이전</button>
-      <span id="page-number">{page} / {totalPages}페이지</span>
+      <span id="page-number">{totalPages === 0 ? "0페이지" : `${page} / ${totalPages}페이지`}</span>
       <button id="next-page" type="button" disabled={page >= totalPages} onClick={() => setSearchParams({ page: String(page + 1) })}>다음</button>
     </div>
   </main>;
@@ -80,13 +93,6 @@ export default function App() {
     { id: 2, title: "두 번째 게시글", author: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
   ]);
 
-  function addPracticePost() {
-    setPosts((currentPosts) => [
-      { id: Date.now(), title: `임시 게시글 ${currentPosts.length + 1}`, author: "학생", createdDatetime: "2026-10-04", content: "State 변경을 확인합니다." },
-      ...currentPosts,
-    ]);
-  }
-
   function savePost(post) {
     setPosts((currentPosts) => [
       { id: Date.now(), ...post, author: "학생", createdDatetime: "2026-10-04" },
@@ -97,8 +103,8 @@ export default function App() {
   return <>
     <BoardHeader isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
     <Routes>
-      <Route path="/" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
-      <Route path="/posts" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
+      <Route path="/" element={<PostListPage />} />
+      <Route path="/posts" element={<PostListPage />} />
       <Route path="/posts/new" element={<PostWritePage onSave={savePost} />} />
       <Route path="/posts/:postId" element={<PostDetailPage posts={posts} />} />
       <Route path="/login" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
