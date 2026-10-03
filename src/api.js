@@ -3,7 +3,9 @@ async function readData(response) {
   if (response.status === 204) return null;
   const result = await response.json().catch(() => null);
   if (!response.ok || !result?.success) {
-    throw new Error(result?.message || `요청 실패 (${response.status})`);
+    const error = new Error(result?.message || `요청 실패 (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   return result.data;
 }
