@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
@@ -10,7 +10,7 @@ import Spinner from "./components/Spinner.jsx";
 import { authApi, commentApi, postApi } from "./api.js";
 
 function PostListPage() {
-  const { token } = useContext(AuthContext);
+  const { token, clearAuth } = useContext(AuthContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -34,6 +34,7 @@ function PostListPage() {
       })
       .catch((requestError) => {
         if (controller.signal.aborted) return;
+        if (requestError.status === 401) clearAuth();
         setMessage(requestError.message || "게시글을 불러올 수 없습니다.");
         setError(true);
       })
@@ -48,19 +49,24 @@ function PostListPage() {
     {error && <button id="retry-list" type="button" onClick={() => setRetry((value) => value + 1)}>목록 다시 시도</button>}
     {!loading && !error && <PostList posts={posts} />}
     <div className="pagination" aria-label="페이지 이동">
-      <button id="previous-page" type="button" disabled={loading || page === 1} onClick={() => setSearchParams({ page: String(page - 1) })}>이전</button>
+      <button id="previous-page" type="button" disabled={loading || error || page === 1} onClick={() => setSearchParams({ page: String(page - 1) })}>이전</button>
       <span id="page-number">{totalPages === 0 ? "0페이지" : `${page} / ${totalPages}페이지`}</span>
-      <button id="next-page" type="button" disabled={loading || page >= totalPages} onClick={() => setSearchParams({ page: String(page + 1) })}>다음</button>
+      <button id="next-page" type="button" disabled={loading || error || page >= totalPages} onClick={() => setSearchParams({ page: String(page + 1) })}>다음</button>
     </div>
   </main>;
 }
 
 function PostWritePage() {
-  const { token } = useContext(AuthContext);
+  const { token, clearAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
   async function createPost(post) {
-    await postApi.create(post, token);
+    try {
+      await postApi.create(post, token);
+    } catch (error) {
+      if (error.status === 401) clearAuth();
+      throw error;
+    }
     navigate("/posts");
   }
 
@@ -71,8 +77,9 @@ function PostWritePage() {
 }
 
 function PostDetailPage() {
-  const { token } = useContext(AuthContext);
+  const { token, clearAuth } = useContext(AuthContext);
   const { postId } = useParams();
+  const invalidId = !/^\d+$/.test(postId) || !Number.isSafeInteger(Number(postId)) || Number(postId) < 1;
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [postMessage, setPostMessage] = useState("");
@@ -95,6 +102,7 @@ function PostDetailPage() {
       setCommentMessage("");
     } catch (error) {
       if (!signal?.aborted) {
+        if (error.status === 401) clearAuth();
         setCommentMessage(error.message);
         setCommentError(true);
       }
@@ -104,7 +112,9 @@ function PostDetailPage() {
   }
 
   useEffect(() => {
-    if (!/^\d+$/.test(postId) || Number(postId) < 1) {
+    if (invalidId) {
+      setPost(null);
+      setComments([]);
       setPostMessage("잘못된 게시글 번호입니다.");
       setPostLoading(false);
       return;
@@ -125,6 +135,7 @@ function PostDetailPage() {
         setPostLoading(false);
       } catch (error) {
         if (!controller.signal.aborted) {
+          if (error.status === 401) clearAuth();
           setPostMessage(error.message);
           setPostError(true);
           setPostLoading(false);
@@ -153,6 +164,7 @@ function PostDetailPage() {
       // 등록한 글의 댓글만 다시 조회
       await loadComments();
     } catch (error) {
+      if (error.status === 401) clearAuth();
       setCommentMessage(error.message);
     } finally {
       setCommentSaving(false);
@@ -161,7 +173,7 @@ function PostDetailPage() {
 
   return <main>
     <article>
-      <h1 id="post-title">{post?.title || "게시글 상세"}</h1>
+      <h1 id="post-title">{post?.title || (invalidId ? "잘못된 게시글 번호입니다." : postError ? "게시글을 불러올 수 없습니다." : "게시글 상세")}</h1>
       <p id="post-meta" className="meta">{post && `${post.author} · ${post.createdDatetime || ""}`}</p>
       <p id="post-content">{post?.content}</p>
       <p id="post-message" role="status">{postMessage}</p>
@@ -175,7 +187,7 @@ function PostDetailPage() {
       {commentLoading && <Spinner />}
       {commentError && <button id="retry-comments" type="button" onClick={() => loadComments()}>댓글 다시 시도</button>}
       {!commentLoading && !commentError && <ul id="comment-list">{comments.length === 0 ? "등록된 댓글이 없습니다." : comments.map((comment) => <li key={comment.id}><strong>{comment.author}</strong><p>{comment.content}</p></li>)}</ul>}
-      <form id="comment-form" onSubmit={addComment}>
+      <form id="comment-form" noValidate onSubmit={addComment}>
         <label htmlFor="comment-content">댓글 내용</label>
         <textarea id="comment-content" name="content" required maxLength="255" value={commentContent} onChange={(event) => setCommentContent(event.target.value)}></textarea>
         <button type="submit" disabled={commentSaving}>댓글 등록</button>
@@ -227,10 +239,10 @@ export default function App() {
   return <>
     <BoardHeader />
     <Routes>
-      <Route path="/" element={token ? <PostListPage /> : <LoginPage />} />
-      <Route path="/posts" element={token ? <PostListPage /> : <LoginPage />} />
-      <Route path="/posts/new" element={token ? <PostWritePage /> : <LoginPage />} />
-      <Route path="/posts/:postId" element={token ? <PostDetailPage /> : <LoginPage />} />
+      <Route path="/" element={<Navigate to={token ? "/posts" : "/login"} replace />} />
+      <Route path="/posts" element={token ? <PostListPage /> : <Navigate to="/login" replace />} />
+      <Route path="/posts/new" element={token ? <PostWritePage /> : <Navigate to="/login" replace />} />
+      <Route path="/posts/:postId" element={token ? <PostDetailPage /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>
     <BoardFooter />
