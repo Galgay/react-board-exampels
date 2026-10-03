@@ -34,7 +34,7 @@ export default function PostForm({ onSave }) {
   }
 
   return (
-    <form id="post-form" onSubmit={handleSubmit}>
+    <form id="post-form" noValidate onSubmit={handleSubmit}>
       <label htmlFor="title">제목 (10~50자)</label>
       <input ref={titleRef} id="title" name="title" required minLength="10" maxLength="50" value={title} onChange={(event) => setTitle(event.target.value)} />
       <label htmlFor="content">본문 (10자 이상)</label>
