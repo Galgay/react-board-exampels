@@ -41,3 +41,11 @@ export function getBoard(id) {
 export function createBoard(values) {
   return request("/board", { method: "POST", body: JSON.stringify(values) }, true);
 }
+
+export function updateBoard(id, values) {
+  return request(`/board/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(values) }, true);
+}
+
+export function deleteBoard(id) {
+  return request(`/board/${encodeURIComponent(id)}`, { method: "DELETE" }, true);
+}

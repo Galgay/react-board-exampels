@@ -34,6 +34,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/posts" replace />} />
           <Route path="/posts" element={<PostListPage />} />
           <Route path="/posts/new" element={<WritePage />} />
+          <Route path="/posts/:postId/edit" element={<WritePage />} />
           <Route path="/posts/:postId" element={<PostDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? "/posts" : "/login"} replace />} />
