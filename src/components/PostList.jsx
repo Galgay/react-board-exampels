@@ -18,7 +18,7 @@ export default function PostList({ posts, onAddPracticePost }) {
 function PostListItems({ posts }) {
   return (
     <ul id="post-list" className="post-list">
-      {posts.map((post) => <PostItem key={post.id} post={post} />)}
+      {posts.length === 0 ? "아직 게시글이 없습니다." : posts.map((post) => <PostItem key={post.id} post={post} />)}
     </ul>
   );
 }
