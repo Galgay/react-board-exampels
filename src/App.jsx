@@ -3,12 +3,14 @@ import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
 import PostList from "./components/PostList.jsx";
+import PostForm from "./components/PostForm.jsx";
 
 export default function App() {
   const [posts, setPosts] = useState([
     { id: 1, title: "첫 번째 게시글", author: "학생", createdDatetime: "2026-10-04", content: "React 게시판의 첫 글입니다." },
     { id: 2, title: "두 번째 게시글", author: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
   ]);
+  const [page, setPage] = useState("list");
 
   function addPracticePost() {
     const id = Date.now();
@@ -18,10 +20,18 @@ export default function App() {
     ]);
   }
 
+  function savePost(post) {
+    setPosts((currentPosts) => [
+      { id: Date.now(), ...post, author: "학생", createdDatetime: "2026-10-04" },
+      ...currentPosts,
+    ]);
+    setPage("list");
+  }
+
   return (
     <>
-      <BoardHeader />
-      <main>
+      <BoardHeader onWrite={() => setPage("write")} />
+      {page === "list" && <main>
         <h1>게시판</h1>
         <p id="list-message" role="status">게시글 목록</p>
         <button id="retry-list" type="button" hidden>목록 다시 시도</button>
@@ -32,7 +42,11 @@ export default function App() {
           <span id="page-number">1페이지</span>
           <button id="next-page" type="button" disabled>다음</button>
         </div>
-      </main>
+      </main>}
+      {page === "write" && <main>
+        <h1>글쓰기</h1>
+        <PostForm onSave={savePost} onCancel={() => setPage("list")} />
+      </main>}
       <BoardFooter />
     </>
   );
