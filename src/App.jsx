@@ -43,11 +43,23 @@ function PostListPage() {
 }
 
 function PostWritePage() {
-  const [message, setMessage] = useState("");
+  const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  async function createPost(post) {
+    const response = await fetch("http://127.0.0.1:8080/api/board", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(post),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "게시글을 등록할 수 없습니다.");
+    navigate("/posts");
+  }
+
   return <main>
     <h1>글쓰기</h1>
-    <PostForm onSave={() => setMessage("게시글 등록 API는 다음 실습에서 연결합니다.")} />
-    <p role="status">{message}</p>
+    <PostForm onSave={createPost} />
   </main>;
 }
 
