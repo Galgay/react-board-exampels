@@ -1,11 +1,9 @@
 import PostItem from "./PostItem.jsx";
 
-export default function PostList({ posts, keyword, onKeywordChange, ownedBoardIds, onDelete }) {
+export default function PostList({ posts, ownedBoardIds, onDelete }) {
+  if (posts.length === 0) return null;
   return (
-    <section>
-      <h2>게시글 목록</h2>
-      <label htmlFor="keyword">현재 목록 제목 검색</label>
-      <input id="keyword" value={keyword} onChange={(event) => onKeywordChange(event.target.value)} />
+    <>
       <div className="table-scroll">
         <table>
           <thead>
@@ -15,6 +13,7 @@ export default function PostList({ posts, keyword, onKeywordChange, ownedBoardId
               <th scope="col">작성자</th>
               <th scope="col">조회</th>
               <th scope="col">좋아요</th>
+              <th scope="col">작성일</th>
               <th scope="col">관리</th>
             </tr>
           </thead>
@@ -23,7 +22,6 @@ export default function PostList({ posts, keyword, onKeywordChange, ownedBoardId
           </tbody>
         </table>
       </div>
-      {posts.length === 0 && <p>검색 결과가 없습니다.</p>}
-    </section>
+    </>
   );
 }

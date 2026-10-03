@@ -341,11 +341,14 @@ button:hover:not(:disabled) {
 .search-form {
   display: flex;
   flex: 1;
+  align-items: end;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .search-form input {
   min-width: 8rem;
+  flex: 1;
 }
 
 .sort-control {
@@ -356,7 +359,8 @@ button:hover:not(:disabled) {
   white-space: nowrap;
 }
 
-.sort-control select {
+.sort-control select,
+.search-form select {
   padding: 0.6rem;
   border: 1px solid #b8c6bb;
   border-radius: 0.35rem;

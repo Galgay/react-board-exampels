@@ -104,8 +104,17 @@ export function logout() {
   return request("/auth/logout", { method: "POST", body: JSON.stringify({ accessToken }) });
 }
 
-export function getBoards() {
-  return request("/board/home?page=0&size=10&sort=createdDatetime%2Cdesc&sort=id%2Cdesc", {}, false);
+export function getBoards(params = {}) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) value.forEach((item) => query.append(key, item));
+    else if (value != null && value !== "") query.set(key, value);
+  }
+  return request("/board/home" + (query.size ? "?" + query : ""), {}, false);
+}
+
+export function searchBoards(keyword) {
+  return request("/board/search?" + new URLSearchParams({ keyword }), {}, false);
 }
 
 export function getBoard(id) {
