@@ -4,7 +4,7 @@ export default function PostList({ posts, keyword, onKeywordChange }) {
   return (
     <section>
       <h2>게시글 목록</h2>
-      <label htmlFor="keyword">제목 검색</label>
+      <label htmlFor="keyword">현재 목록 제목 검색</label>
       <input id="keyword" value={keyword} onChange={(event) => onKeywordChange(event.target.value)} />
       <div className="table-scroll">
         <table>
