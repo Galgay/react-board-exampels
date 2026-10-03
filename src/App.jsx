@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, Route, Routes, useParams, useSearchParams } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
 import PostList from "./components/PostList.jsx";
 import PostForm from "./components/PostForm.jsx";
 
-function PostListPage() {
+function PostListPage({ token }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -16,7 +16,7 @@ function PostListPage() {
 
   useEffect(() => {
     // 페이지 번호가 바뀔 때 목록을 다시 조회
-    fetch(`/api/board?page=${page - 1}&size=10`)
+    fetch(`/api/board?page=${page - 1}&size=10`, { headers: { Authorization: `Bearer ${token}` } })
       .then((response) => response.json())
       .then((result) => {
         if (!result.success) throw new Error(result.message);
@@ -25,7 +25,7 @@ function PostListPage() {
         setMessage(`전체 ${result.data.totalElements}개`);
       })
       .catch(() => setMessage("게시글을 불러올 수 없습니다."));
-  }, [page]);
+  }, [page, token]);
 
   return <main>
     <h1>게시판</h1>
@@ -40,14 +40,16 @@ function PostListPage() {
   </main>;
 }
 
-function PostWritePage({ onSave }) {
+function PostWritePage() {
+  const [message, setMessage] = useState("");
   return <main>
     <h1>글쓰기</h1>
-    <PostForm onSave={onSave} />
+    <PostForm onSave={() => setMessage("게시글 등록 API는 다음 실습에서 연결합니다.")} />
+    <p role="status">{message}</p>
   </main>;
 }
 
-function PostDetailPage() {
+function PostDetailPage({ token }) {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -67,7 +69,7 @@ function PostDetailPage() {
 
     async function loadDetail() {
       try {
-        const response = await fetch(`/api/board/${postId}`, { signal: controller.signal });
+        const response = await fetch(`/api/board/${postId}`, { signal: controller.signal, headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.message || "게시글을 불러올 수 없습니다.");
         setPost(result.data);
@@ -79,7 +81,7 @@ function PostDetailPage() {
 
       setCommentMessage("댓글을 불러오는 중…");
       try {
-        const response = await fetch(`/api/board/${postId}/comments`, { signal: controller.signal });
+        const response = await fetch(`/api/board/${postId}/comments`, { signal: controller.signal, headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.message || "댓글을 불러올 수 없습니다.");
         setComments(result.data);
@@ -91,7 +93,7 @@ function PostDetailPage() {
 
     loadDetail();
     return () => controller.abort();
-  }, [postId]);
+  }, [postId, token]);
 
   return <main>
     <article>
@@ -115,41 +117,59 @@ function PostDetailPage() {
 }
 
 function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || "로그인에 실패했습니다.");
+      if (!result.data?.accessToken) throw new Error("로그인 토큰이 없습니다.");
+      localStorage.setItem("boardAccessToken", result.data.accessToken);
+      onLogin(result.data.accessToken);
+      navigate("/posts");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
+
   return <main>
     <h1>로그인</h1>
-    <form id="login-form" onSubmit={(event) => { event.preventDefault(); onLogin(); }}>
+    <form id="login-form" onSubmit={handleSubmit}>
       <label htmlFor="username">아이디</label>
-      <input id="username" name="username" autoComplete="username" required placeholder="아이디를 입력하세요" />
+      <input id="username" name="username" autoComplete="username" required placeholder="아이디를 입력하세요" value={username} onChange={(event) => setUsername(event.target.value)} />
       <label htmlFor="password">비밀번호</label>
-      <input id="password" name="password" type="password" autoComplete="current-password" required />
-      <p id="login-message" role="alert" hidden></p>
+      <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+      {message && <p id="login-message" role="alert">{message}</p>}
       <button type="submit">로그인</button>
     </form>
   </main>;
 }
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [posts, setPosts] = useState([
-    { id: 1, title: "첫 번째 게시글", author: "학생", createdDatetime: "2026-10-04", content: "React 게시판의 첫 글입니다." },
-    { id: 2, title: "두 번째 게시글", author: "강사", createdDatetime: "2026-10-04", content: "Props로 데이터를 내려봅니다." },
-  ]);
+  const [token, setToken] = useState(() => localStorage.getItem("boardAccessToken"));
 
-  function savePost(post) {
-    setPosts((currentPosts) => [
-      { id: Date.now(), ...post, author: "학생", createdDatetime: "2026-10-04" },
-      ...currentPosts,
-    ]);
+  function logoutLocally() {
+    localStorage.removeItem("boardAccessToken");
+    setToken(null);
   }
 
   return <>
-    <BoardHeader isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
+    <BoardHeader isLoggedIn={Boolean(token)} onLogout={logoutLocally} />
     <Routes>
-      <Route path="/" element={<PostListPage />} />
-      <Route path="/posts" element={<PostListPage />} />
-      <Route path="/posts/new" element={<PostWritePage onSave={savePost} />} />
-      <Route path="/posts/:postId" element={<PostDetailPage />} />
-      <Route path="/login" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
+      <Route path="/" element={token ? <PostListPage token={token} /> : <LoginPage onLogin={setToken} />} />
+      <Route path="/posts" element={token ? <PostListPage token={token} /> : <LoginPage onLogin={setToken} />} />
+      <Route path="/posts/new" element={token ? <PostWritePage /> : <LoginPage onLogin={setToken} />} />
+      <Route path="/posts/:postId" element={token ? <PostDetailPage token={token} /> : <LoginPage onLogin={setToken} />} />
+      <Route path="/login" element={<LoginPage onLogin={setToken} />} />
     </Routes>
     <BoardFooter />
   </>;
