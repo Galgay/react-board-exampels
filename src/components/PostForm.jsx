@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export default function PostForm({ onCreate }) {
+export default function PostForm({ onCreate, disabled = false }) {
   const [values, setValues] = useState({ title: "", content: "" });
   const titleRef = useRef(null);
 
@@ -9,11 +9,13 @@ export default function PostForm({ onCreate }) {
     setValues((current) => ({ ...current, [name]: value }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    onCreate({ title: values.title.trim(), content: values.content.trim() });
-    setValues({ title: "", content: "" });
-    titleRef.current?.focus();
+    const saved = await onCreate({ title: values.title.trim(), content: values.content.trim() });
+    if (saved) {
+      setValues({ title: "", content: "" });
+      titleRef.current?.focus();
+    }
   }
 
   return (
@@ -27,7 +29,7 @@ export default function PostForm({ onCreate }) {
         <label htmlFor="content">본문</label>
         <textarea id="content" name="content" rows="5" value={values.content} onChange={handleChange} required minLength={10} />
       </div>
-      <button type="submit">등록</button>
+      <button type="submit" disabled={disabled}>{disabled ? "등록 중..." : "등록"}</button>
     </form>
   );
 }

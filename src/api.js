@@ -37,3 +37,7 @@ export function getBoards() {
 export function getBoard(id) {
   return request(`/board/${encodeURIComponent(id)}`);
 }
+
+export function createBoard(values) {
+  return request("/board", { method: "POST", body: JSON.stringify(values) }, true);
+}
