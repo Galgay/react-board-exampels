@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useParams } from "react-router-dom";
 import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
@@ -28,16 +28,19 @@ function PostWritePage({ onSave }) {
   </main>;
 }
 
-function PostDetailPage() {
+function PostDetailPage({ posts }) {
+  const { postId } = useParams();
+  const post = posts.find((item) => String(item.id) === postId);
+
   return <main>
     <article>
-      <h1 id="post-title">게시글 상세</h1>
-      <p id="post-meta" className="meta"></p>
-      <p id="post-content"></p>
+      <h1 id="post-title">{post?.title || "게시글을 불러올 수 없습니다."}</h1>
+      <p id="post-meta" className="meta">{post && `${post.author} · ${post.createdDatetime || ""}`}</p>
+      <p id="post-content">{post?.content}</p>
       <p id="post-message" role="status"></p>
     </article>
     <Link to="/posts">목록으로</Link>
-    <section id="comments-section" aria-labelledby="comments-title">
+    {post && <section id="comments-section" aria-labelledby="comments-title">
       <h2 id="comments-title">댓글</h2>
       <p id="comment-message" role="status"></p>
       <ul id="comment-list"></ul>
@@ -46,7 +49,7 @@ function PostDetailPage() {
         <textarea id="comment-content" name="content" required maxLength="255"></textarea>
         <button type="submit">댓글 등록</button>
       </form>
-    </section>
+    </section>}
   </main>;
 }
 
@@ -91,7 +94,7 @@ export default function App() {
       <Route path="/" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
       <Route path="/posts" element={<PostListPage posts={posts} onAddPracticePost={addPracticePost} />} />
       <Route path="/posts/new" element={<PostWritePage onSave={savePost} />} />
-      <Route path="/posts/:postId" element={<PostDetailPage />} />
+      <Route path="/posts/:postId" element={<PostDetailPage posts={posts} />} />
       <Route path="/login" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
     </Routes>
     <BoardFooter />
