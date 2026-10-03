@@ -15,7 +15,20 @@ export function AuthProvider({ children }) {
     setToken(null);
   }
 
-  return <AuthContext.Provider value={{ token, login, clearAuth }}>
+  async function logout() {
+    const response = await fetch("http://127.0.0.1:8080/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ accessToken: token }),
+    });
+    if (response.status !== 204) {
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.success) throw new Error(result?.message || "로그아웃에 실패했습니다.");
+    }
+    clearAuth();
+  }
+
+  return <AuthContext.Provider value={{ token, login, clearAuth, logout }}>
     {children}
   </AuthContext.Provider>;
 }
