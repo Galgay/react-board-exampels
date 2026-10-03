@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
 import PostList from "./components/PostList.jsx";
@@ -14,10 +14,10 @@ export default function App() {
   return <>
     <BoardHeader />
     <Routes>
-      <Route path="/" element={token ? <PostList /> : <Login />} />
-      <Route path="/posts" element={token ? <PostList /> : <Login />} />
-      <Route path="/posts/new" element={token ? <PostForm /> : <Login />} />
-      <Route path="/posts/:postId" element={token ? <PostDetail /> : <Login />} />
+      <Route path="/" element={<Navigate to={token ? "/posts" : "/login"} replace />} />
+      <Route path="/posts" element={token ? <PostList /> : <Navigate to="/login" replace />} />
+      <Route path="/posts/new" element={token ? <PostForm /> : <Navigate to="/login" replace />} />
+      <Route path="/posts/:postId" element={token ? <PostDetail /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
     </Routes>
     <BoardFooter />

@@ -5,8 +5,9 @@ import { useAuthContext } from "../useAuthContext.jsx";
 import { commentApi, postApi } from "../api.js";
 
 export default function PostDetail() {
-  const { token } = useAuthContext();
+  const { token, clearAuth } = useAuthContext();
   const { postId } = useParams();
+  const invalidId = !/^\d+$/.test(postId) || !Number.isSafeInteger(Number(postId)) || Number(postId) < 1;
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [postMessage, setPostMessage] = useState("");
@@ -28,6 +29,7 @@ export default function PostDetail() {
       setComments(data);
       setCommentMessage("");
     } catch (error) {
+      if (error.status === 401) clearAuth();
       setCommentMessage(error.message);
       setCommentError(true);
     } finally {
@@ -36,7 +38,9 @@ export default function PostDetail() {
   }
 
   useEffect(() => {
-    if (!/^\d+$/.test(postId) || Number(postId) < 1) {
+    if (invalidId) {
+      setPost(null);
+      setComments([]);
       setPostMessage("잘못된 게시글 번호입니다.");
       setPostLoading(false);
       return;
@@ -55,6 +59,7 @@ export default function PostDetail() {
         setPostMessage("");
         setPostLoading(false);
       } catch (error) {
+        if (error.status === 401) clearAuth();
         setPostMessage(error.message);
         setPostError(true);
         setPostLoading(false);
@@ -81,6 +86,7 @@ export default function PostDetail() {
       // 등록한 글의 댓글만 다시 조회
       await loadComments();
     } catch (error) {
+      if (error.status === 401) clearAuth();
       setCommentMessage(error.message);
     } finally {
       setCommentSaving(false);
@@ -89,7 +95,7 @@ export default function PostDetail() {
 
   return <main>
     <article>
-      <h1 id="post-title">{post?.title || "게시글 상세"}</h1>
+      <h1 id="post-title">{post?.title || (invalidId ? "잘못된 게시글 번호입니다." : postError ? "게시글을 불러올 수 없습니다." : "게시글 상세")}</h1>
       <p id="post-meta" className="meta">{post && `${post.authorNickname} · ${post.createdDatetime || ""}`}</p>
       <p id="post-content">{post?.content}</p>
       <p id="post-message" role="status">{postMessage}</p>
@@ -103,7 +109,7 @@ export default function PostDetail() {
       {commentLoading && <Spinner />}
       {commentError && <button id="retry-comments" type="button" onClick={() => loadComments()}>댓글 다시 시도</button>}
       {!commentLoading && !commentError && <ul id="comment-list">{comments.length === 0 ? "등록된 댓글이 없습니다." : comments.map((comment) => <li key={comment.id}><strong>{comment.nickname}</strong><p>{comment.content}</p></li>)}</ul>}
-      <form id="comment-form" onSubmit={addComment}>
+      <form id="comment-form" noValidate onSubmit={addComment}>
         <label htmlFor="comment-content">댓글 내용</label>
         <textarea id="comment-content" name="content" required maxLength="255" value={commentContent} onChange={(event) => setCommentContent(event.target.value)}></textarea>
         <button type="submit" disabled={commentSaving}>댓글 등록</button>

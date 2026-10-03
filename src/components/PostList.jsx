@@ -6,7 +6,7 @@ import { useAuthContext } from "../useAuthContext.jsx";
 import { postApi } from "../api.js";
 
 export default function PostList() {
-  const { token } = useAuthContext();
+  const { token, clearAuth } = useAuthContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -28,6 +28,7 @@ export default function PostList() {
         setMessage(`전체 ${data.totalElements}개`);
       })
       .catch((requestError) => {
+        if (requestError.status === 401) clearAuth();
         setMessage(requestError.message || "게시글을 불러올 수 없습니다.");
         setError(true);
       })
@@ -41,9 +42,9 @@ export default function PostList() {
     {error && <button id="retry-list" type="button" onClick={() => setRetry((value) => value + 1)}>목록 다시 시도</button>}
     {!loading && !error && <PostListItems posts={posts} />}
     <div className="pagination" aria-label="페이지 이동">
-      <button id="previous-page" type="button" disabled={loading || page === 1} onClick={() => setSearchParams({ page: String(page - 1) })}>이전</button>
+      <button id="previous-page" type="button" disabled={loading || error || page === 1} onClick={() => setSearchParams({ page: String(page - 1) })}>이전</button>
       <span id="page-number">{totalPages === 0 ? "0페이지" : `${page} / ${totalPages}페이지`}</span>
-      <button id="next-page" type="button" disabled={loading || page >= totalPages} onClick={() => setSearchParams({ page: String(page + 1) })}>다음</button>
+      <button id="next-page" type="button" disabled={loading || error || page >= totalPages} onClick={() => setSearchParams({ page: String(page + 1) })}>다음</button>
     </div>
   </main>;
 }

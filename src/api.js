@@ -1,9 +1,12 @@
 // 기존 Spring 응답: { success, message, data }
+const API_BASE_URL = "http://127.0.0.1:8080/api";
 async function readData(response) {
   if (response.status === 204) return null;
   const result = await response.json().catch(() => null);
   if (!response.ok || !result?.success) {
-    throw new Error(result?.message || `요청 실패 (${response.status})`);
+    const error = new Error(result?.message || `요청 실패 (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   return result.data;
 }
@@ -14,14 +17,14 @@ function authHeader(token) {
 
 export const authApi = {
   login(username, password) {
-    return fetch("http://127.0.0.1:8080/api/user/login", {
+    return fetch(`${API_BASE_URL}/user/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     }).then(readData);
   },
   logout(token) {
-    return fetch("http://127.0.0.1:8080/api/user/logout", {
+    return fetch(`${API_BASE_URL}/user/logout`, {
       method: "POST",
       headers: { ...authHeader(token), "Content-Type": "application/json" },
       body: JSON.stringify({ accessToken: token }),
@@ -31,13 +34,13 @@ export const authApi = {
 
 export const postApi = {
   list(page, token) {
-    return fetch(`http://127.0.0.1:8080/api/board?page=${page}&size=10`, { headers: authHeader(token) }).then(readData);
+    return fetch(`${API_BASE_URL}/board?page=${page}&size=10`, { headers: authHeader(token) }).then(readData);
   },
   detail(id, token) {
-    return fetch(`http://127.0.0.1:8080/api/board/${id}`, { headers: authHeader(token) }).then(readData);
+    return fetch(`${API_BASE_URL}/board/${id}`, { headers: authHeader(token) }).then(readData);
   },
   create(post, token) {
-    return fetch("http://127.0.0.1:8080/api/board", {
+    return fetch(`${API_BASE_URL}/board`, {
       method: "POST",
       headers: { ...authHeader(token), "Content-Type": "application/json" },
       body: JSON.stringify(post),
@@ -47,10 +50,10 @@ export const postApi = {
 
 export const commentApi = {
   list(postId, token) {
-    return fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`, { headers: authHeader(token) }).then(readData);
+    return fetch(`${API_BASE_URL}/board/${postId}/comment`, { headers: authHeader(token) }).then(readData);
   },
   create(postId, content, token) {
-    return fetch(`http://127.0.0.1:8080/api/board/${postId}/comment`, {
+    return fetch(`${API_BASE_URL}/board/${postId}/comment`, {
       method: "POST",
       headers: { ...authHeader(token), "Content-Type": "application/json" },
       body: JSON.stringify({ content }),

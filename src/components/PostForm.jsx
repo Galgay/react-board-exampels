@@ -4,11 +4,16 @@ import { useAuthContext } from "../useAuthContext.jsx";
 import { postApi } from "../api.js";
 
 export default function PostForm() {
-  const { token } = useAuthContext();
+  const { token, clearAuth } = useAuthContext();
   const navigate = useNavigate();
 
   async function createPost(post) {
-    await postApi.create(post, token);
+    try {
+      await postApi.create(post, token);
+    } catch (error) {
+      if (error.status === 401) clearAuth();
+      throw error;
+    }
     navigate("/posts");
   }
 
@@ -51,7 +56,7 @@ function PostFormFields({ onSave }) {
   }
 
   return (
-    <form id="post-form" onSubmit={handleSubmit}>
+    <form id="post-form" noValidate onSubmit={handleSubmit}>
       <label htmlFor="title">제목 (10~50자)</label>
       <input ref={titleRef} id="title" name="title" required minLength="10" maxLength="50" value={title} onChange={(event) => setTitle(event.target.value)} />
       <label htmlFor="content">본문 (10자 이상)</label>
