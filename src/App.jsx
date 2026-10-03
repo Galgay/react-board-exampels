@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import "./style.css";
 import BoardHeader from "./components/BoardHeader.jsx";
 import BoardFooter from "./components/BoardFooter.jsx";
 import PostList from "./components/PostList.jsx";
 import PostForm from "./components/PostForm.jsx";
+import { AuthContext } from "./auth.jsx";
 
-function PostListPage({ token }) {
+function PostListPage() {
+  const { token } = useContext(AuthContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -49,7 +51,8 @@ function PostWritePage() {
   </main>;
 }
 
-function PostDetailPage({ token }) {
+function PostDetailPage() {
+  const { token } = useContext(AuthContext);
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -116,7 +119,8 @@ function PostDetailPage({ token }) {
   </main>;
 }
 
-function LoginPage({ onLogin }) {
+function LoginPage() {
+  const { login } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -133,8 +137,7 @@ function LoginPage({ onLogin }) {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.message || "로그인에 실패했습니다.");
       if (!result.data?.accessToken) throw new Error("로그인 토큰이 없습니다.");
-      localStorage.setItem("boardAccessToken", result.data.accessToken);
-      onLogin(result.data.accessToken);
+      login(result.data.accessToken);
       navigate("/posts");
     } catch (error) {
       setMessage(error.message);
@@ -155,21 +158,16 @@ function LoginPage({ onLogin }) {
 }
 
 export default function App() {
-  const [token, setToken] = useState(() => localStorage.getItem("boardAccessToken"));
-
-  function logoutLocally() {
-    localStorage.removeItem("boardAccessToken");
-    setToken(null);
-  }
+  const { token } = useContext(AuthContext);
 
   return <>
-    <BoardHeader isLoggedIn={Boolean(token)} onLogout={logoutLocally} />
+    <BoardHeader />
     <Routes>
-      <Route path="/" element={token ? <PostListPage token={token} /> : <LoginPage onLogin={setToken} />} />
-      <Route path="/posts" element={token ? <PostListPage token={token} /> : <LoginPage onLogin={setToken} />} />
-      <Route path="/posts/new" element={token ? <PostWritePage /> : <LoginPage onLogin={setToken} />} />
-      <Route path="/posts/:postId" element={token ? <PostDetailPage token={token} /> : <LoginPage onLogin={setToken} />} />
-      <Route path="/login" element={<LoginPage onLogin={setToken} />} />
+      <Route path="/" element={token ? <PostListPage /> : <LoginPage />} />
+      <Route path="/posts" element={token ? <PostListPage /> : <LoginPage />} />
+      <Route path="/posts/new" element={token ? <PostWritePage /> : <LoginPage />} />
+      <Route path="/posts/:postId" element={token ? <PostDetailPage /> : <LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
     </Routes>
     <BoardFooter />
   </>;
